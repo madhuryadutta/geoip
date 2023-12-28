@@ -1,0 +1,6 @@
+GeoLite2-City-CSV.zip
+db/*
+
+.env
+!.gitignore
+!db/README.md
