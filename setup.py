@@ -23,8 +23,8 @@ conn = mysql.connector.connect(
   password = os.getenv('DB_PASSWORD'),
   database = os.getenv('DB_DATABASE'),
   ssl_ca = os.getenv('DB_SSL_CA'),
-  ssl_verify_cert = os.getenv('DB_SSL_VERIFY_CERT'),
-  ssl_verify_identity = os.getenv('DB_SSL_VERIFY_IDENTITY')
+  ssl_verify_cert = True,
+  ssl_verify_identity = True
 )
 
 def func_download_db(filename,LICENSE_KEY):
@@ -59,13 +59,13 @@ def func_find_extract_folder_name():
 
 # Download CSV Files from maxmind.com official source using own licence key 
 filename = "db/"+MaxMind_GeoIP_ZIP_NAME
-# func_download_db(filename,YOUR_LICENSE_KEY):
+# func_download_db(filename,YOUR_LICENSE_KEY)
 
 # unziping
-# func_unzip_csv(filename,'db/')
+func_unzip_csv(filename,'db/')
 
 # deleting zip file 
-# func_zip_delete(filename):
+func_zip_delete(filename)
 
 func_find_extract_folder_name()
 
@@ -95,7 +95,7 @@ cursor.execute('''create table IF NOT EXISTS ipv4
     PRIMARY KEY (id)
 )''')
 
-ipv4_file=Unzipp_Folder+"/GeoLite2-City-Blocks-IPv4.csv"
+ipv4_file='db/'+Unzipp_Folder+"/GeoLite2-City-Blocks-IPv4.csv"
 #open the csv file
 with open(ipv4_file, mode='r') as csv_file:
     #read csv using reader class
@@ -103,10 +103,14 @@ with open(ipv4_file, mode='r') as csv_file:
     #skip header
     header = next(csv_reader)
     #Read csv row wise and insert into table
+    i=1
     for row in csv_reader:
-        sql = "INSERT INTO users (name, mobile, email) VALUES (%s,%s,%s)"
+        sql = '''INSERT INTO ipv4 (network, geoname_id, registered_country_geoname_id, represented_country_geoname_id,
+                  is_anonymous_proxy, is_satellite_provider, postal_code, latitude, longitude, accuracy_radius)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
         cursor.execute(sql, tuple(row))
-        print("Record inserted")
-
-conn.commit()
+        print("Record inserted " + str(i))
+        i=i+1;
+        conn.commit()
+# conn.commit()
 cursor.close()
