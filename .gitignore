@@ -4,3 +4,4 @@ db/*
 .env
 !.gitignore
 !db/README.md
+.secret
