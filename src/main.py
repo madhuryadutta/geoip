@@ -3,11 +3,12 @@ import json
 
 # IP address to lookup
 ip_address = "104.28.216.196"
-
+print(type(ip_address))
+exit()
 # Path to the GeoIP2 City ,Country,ASN database file
-city_database_path = "./db/GeoLite2-City.mmdb"
-country_database_path = "./db/GeoLite2-Country.mmdb"
-asn_database_path = "./db/GeoLite2-ASN.mmdb"
+city_database_path = "../db/GeoLite2-City.mmdb"
+country_database_path = "../db/GeoLite2-Country.mmdb"
+asn_database_path = "../db/GeoLite2-ASN.mmdb"
 
 
 # Initialize reader object named reader_city ,reader_country ,reader_asn
