@@ -1,3 +1,8 @@
+import os
+import datetime
+import ipaddress
+import geoip2.database
+
 from typing import Union
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, FileResponse
@@ -6,30 +11,21 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-import os
-import ipaddress
-import geoip2.database
-
 # from dotenv import load_dotenv
+# load_dotenv()
 
 app = FastAPI()
+
 # Mount static files directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# load_data()
-# load_dotenv()
-
 # CDN = os.environ["APP_URL_ENV"]
-
-# app.mount("/static", StaticFiles(directory="local/meme"), name="static")
-
 
 # Configure Jinja2 templates
 templates = Jinja2Templates(directory="templates")
 
 
 origins = ["*"]
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -45,13 +41,16 @@ def check(ip):
     try:
         ipaddress.ip_address(ip)
         print("Valid IP address")
+        return 1
     except ValueError:
         # If the input is not a valid IP address, catch the exception and print an error message
         print("Invalid IP address")
+        return 0
 
 
 def find_geo(ip_address):
 
+    geoipdata = {}
     # Path to the GeoIP2 City ,Country,ASN database file
     city_database_path = "./db/GeoLite2-City.mmdb"
     country_database_path = "./db/GeoLite2-Country.mmdb"
@@ -65,14 +64,14 @@ def find_geo(ip_address):
     try:
         # Perform the lookup
         response = reader_city.city(ip_address)
-        print("Country Name:", response.country.name)
-        print("Country ISO Code:", response.country.iso_code)
-        print("Region:", response.subdivisions.most_specific.name)
-        print("City:", response.city.name)
-        print("Latitude:", response.location.latitude)
-        print("Longitude:", response.location.longitude)
-        print("Postal Code:", response.postal.code)
-        print("Time Zone:", response.location.time_zone)
+        geoipdata["country"] = response.country.name
+        geoipdata["iso_code"] = response.country.iso_code
+        geoipdata["subdivisions"] = response.subdivisions.most_specific.name
+        geoipdata["city"] = response.city.name
+        geoipdata["latitude"] = response.location.latitude
+        geoipdata["longitude"] = response.location.longitude
+        geoipdata["postal_code"] = response.postal.code
+        geoipdata["time_zone"] = response.location.time_zone
 
     except geoip2.errors.AddressNotFoundError:
         print("Address not found in the database")
@@ -83,8 +82,8 @@ def find_geo(ip_address):
         # Perform the lookup
         response = reader_country.country(ip_address)
 
-        print("Continent:", response.continent.code)
-        print("Continent:", response.continent.names)
+        geoipdata["continent_code"] = response.continent.code
+        geoipdata["continent_name"] = response.continent.names["en"]
     except geoip2.errors.AddressNotFoundError:
         print("Address not found in the database")
     finally:
@@ -95,15 +94,14 @@ def find_geo(ip_address):
         # Perform the lookup
         response = reader_asn.asn(ip_address)
 
-        print("ASN:", response.autonomous_system_number)
-        print("ASN Organization:", response.autonomous_system_organization)
+        geoipdata["asn"] = response.autonomous_system_number
+        geoipdata["asn_org"] = response.autonomous_system_organization
     except geoip2.errors.AddressNotFoundError:
         print("Address not found in the database")
     finally:
         # Close the reader
         reader_asn.close()
-    x = 89
-    return x
+    return geoipdata
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -119,8 +117,24 @@ def read_version(request: Request):
 
 @app.get("/ip/{input_ip_address}")
 def read_item(input_ip_address: str, request: Request):
-    x = find_geo(input_ip_address)
-    # x = check(ip)
+    x = check(input_ip_address)
+    if x == 1:
+        geoipData = find_geo(input_ip_address)
+    else:
+        geoipData = "Invalid Ip address"
+    # geoipdata = "Address not found in the database"
+
+    return {
+        "ipData": geoipData,
+        "generatedAt": datetime.datetime.now(),
+        "version": "0.0.1",
+        "release_date": "03/03/2024",
+    }
+
+
+@app.get("/i/{input_ip_address}")
+def read_item(input_ip_address: str):
+    x = check(input_ip_address)
     print(x)
     return {"version": "0.0.1", "release_date": "03/03/2024"}
 
