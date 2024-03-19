@@ -11,6 +11,8 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from system_func import cpu_usage ,memory_usage 
+
 # from dotenv import load_dotenv
 # load_dotenv()
 
@@ -115,6 +117,16 @@ def read_version(request: Request):
     return {"version": "0.0.1", "release_date": "03/03/2024"}
 
 
+@app.get("/health")
+def read_version(request: Request):
+    # Memory usage
+    x = cpu_usage()
+    y = memory_usage()
+    print("RAM memory % used:", x)
+    print("The CPU usage is : ", y)
+    return {"version": "0.0.1", "release_date": "03/03/2024"}
+
+
 @app.get("/ip/{input_ip_address}")
 def read_item(input_ip_address: str, request: Request):
     x = check(input_ip_address)
@@ -143,19 +155,3 @@ def read_item(input_ip_address: str):
 def read_client(request: Request):
     client_host = request.client.host
     return {"client_ip": client_host}
-
-
-# @app.get("/q/{query}")
-# def read_item(query: str):
-#     i = 0
-#     result = {}
-#     for x in source_list:
-#         if query in x:
-#             i = i + 1
-#             url_meme = "http://" + str(CDN) + "/static/" + x
-#             result.update({i: url_meme})
-#     if i == 0:
-#         output = "No Result found"
-#     else:
-#         output = result
-#     return {"random_meme": output}
