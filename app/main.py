@@ -53,14 +53,16 @@ def find_geo(ip_address):
     try:
         # Perform the lookup
         response = reader_city.city(ip_address)
-        geoipdata["country"] = response.country.name
-        geoipdata["iso_code"] = response.country.iso_code
-        geoipdata["subdivisions"] = response.subdivisions.most_specific.name
-        geoipdata["city"] = response.city.name
-        geoipdata["latitude"] = response.location.latitude
-        geoipdata["longitude"] = response.location.longitude
-        geoipdata["postal_code"] = response.postal.code
-        geoipdata["time_zone"] = response.location.time_zone
+        geoipdata["country"] = response.country.name or "Unknown"
+        geoipdata["iso_code"] = response.country.iso_code or "Unknown"
+        geoipdata["subdivisions"] = (
+            response.subdivisions.most_specific.name or "Unknown"
+        )
+        geoipdata["city"] = response.city.name or "Unknown"
+        geoipdata["latitude"] = response.location.latitude or "Unknown"
+        geoipdata["longitude"] = response.location.longitude or "Unknown"
+        geoipdata["postal_code"] = response.postal.code or "Unknown"
+        geoipdata["time_zone"] = response.location.time_zone or "Unknown"
 
     except geoip2.errors.AddressNotFoundError:
         print("Address not found in the database")
@@ -70,9 +72,23 @@ def find_geo(ip_address):
     try:
         # Perform the lookup
         response = reader_country.country(ip_address)
+        try:
+            continent_name = response.continent.names.get("en")
+            geoipdata["continent_name"] = (
+                continent_name if continent_name else "Unknown"
+            )
+        except Exception as e:
+            print("Error retrieving continent name:", e)
+            geoipdata["continent_name"] = "Unknown"
 
-        geoipdata["continent_code"] = response.continent.code
-        geoipdata["continent_name"] = response.continent.names["en"]
+        try:
+            continent_code = response.continent.code
+            geoipdata["continent_code"] = (
+                continent_code if continent_code else "Unknown"
+            )
+        except Exception as e:
+            print("Error retrieving continent code:", e)
+            geoipdata["continent_code"] = "Unknown"
     except geoip2.errors.AddressNotFoundError:
         print("Address not found in the database")
     finally:
@@ -95,6 +111,7 @@ def find_geo(ip_address):
 
 # Helper function to check IP address validity
 def is_valid_ip(ip):
+    ip_address = ip.split(":")[0]
     try:
         ipaddress.ip_address(ip)
         return True
@@ -115,23 +132,6 @@ def read_system_health():
         "RAM_usage": memory_usage(),
         "generatedAt": datetime.datetime.now(),
     }
-
-
-@app.get("/ip/{input_ip_address}")
-def read_item(input_ip_address: str):
-    if is_valid_ip(input_ip_address):
-        geoip_data = find_geo(input_ip_address)
-        if geoip_data:
-            return {
-                "ipData": geoip_data,
-                "generatedAt": datetime.datetime.now(),
-                "version": "0.0.1",
-                "release_date": "03/03/2024",
-            }
-        else:
-            return {"error": "Address not found in the database"}
-    else:
-        return {"error": "Invalid IP address"}
 
 
 @app.get("/ip/i")
@@ -155,8 +155,21 @@ def read_client_ip_full(request: Request):
             return {
                 "ipData": geoip_data,
                 "generatedAt": datetime.datetime.now(),
-                "version": "0.0.1",
-                "release_date": "03/03/2024",
+            }
+        else:
+            return {"error": "Address not found in the database"}
+    else:
+        return {"error": "Invalid IP address"}
+
+
+@app.get("/ip/{input_ip_address}")
+def read_item(input_ip_address: str):
+    if is_valid_ip(input_ip_address):
+        geoip_data = find_geo(input_ip_address)
+        if geoip_data:
+            return {
+                "ipData": geoip_data,
+                "generatedAt": datetime.datetime.now(),
             }
         else:
             return {"error": "Address not found in the database"}
