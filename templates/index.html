@@ -18,7 +18,8 @@
     <meta name="twitter:card" content="summary" />
     <meta property="twitter:title" content="temp" />
     <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebSite","headline":"Geo IP API","name":"Geo IP API","url":"https://geo.example.com/"}</script>
+        {"@context":"https://schema.org","@type":"WebSite","headline":"Geo IP API","name":"Geo IP API","url":"https://geo.example.com/"}
+    </script>
     <!-- End Jekyll SEO tag -->
 
     <!-- link rel="shortcut icon" type="image/x-icon" href="/temp/favicon.ico" -->
@@ -37,35 +38,14 @@
         <h2>Overview</h2>
         <p>This API provides services related to IP geolocation, system health monitoring, and IP address retrieval.</p>
 
-        <h2>Base URL</h2>
-        <p>example.com</p>
-        <h2>Endpoints</h2>
+        <h3>Base URL</h3>
+        <code>example.com</code>
 
-        <h3>1. Retrieve System Health Information</h3>
-        <p><strong>URL:</strong></p>
+        <br>
+        <br>
+        <h3>Endpoints</h3>
 
-        <div class="language-plaintext highlighter-rouge">
-            <div class="highlight">
-                <pre class="highlight"><code>/health</code></pre>
-            </div>
-        </div>
-        <p><strong>Method:</strong></p>
-        <div class="language-plaintext highlighter-rouge">
-            <div class="highlight">
-                <pre class="highlight"><code>GET</code></pre>
-            </div>
-        </div>
-        <p><strong>Description:</strong></p>
-        <p>Retrieves system health information including CPU and RAM usage.</p>
-        <p><strong>Response:</strong></p>
-        <div class="language-plaintext highlighter-rouge">
-            <div class="highlight">
-                <pre
-                    class="highlight"><code>{ "CPU_usage": float, "RAM_usage": float, "generatedAt": "datetime" }</code></pre>
-            </div>
-        </div>
-
-        <h3>2. Lookup Geographical Information by IP Address</h3>
+        <h4>1. Lookup Geographical Information by IP Address</h4>
         <p><strong>URL:</strong></p>
         <div class="language-plaintext highlighter-rouge">
             <div class="highlight">
@@ -94,7 +74,7 @@
             </div>
         </div>
 
-        <h3>3. Retrieve Client IP Address</h3>
+        <h4>2. Retrieve Client IP Address</h4>
         <p><strong>URL:</strong></p>
         <div class="language-plaintext highlighter-rouge">
             <div class="highlight">
@@ -116,7 +96,7 @@
             </div>
         </div>
 
-        <h3>4. Retrieve Client IP Address with Geographical Information</h3>
+        <h4>3. Retrieve Client IP Address with Geographical Information</h4>
         <p><strong>URL:</strong></p>
         <div class="language-plaintext highlighter-rouge">
             <div class="highlight">
@@ -139,6 +119,30 @@
             </div>
         </div>
 
+        <h4>4. Retrieve System Health Information</h4>
+        <p><strong>URL:</strong></p>
+
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>/health</code></pre>
+            </div>
+        </div>
+        <p><strong>Method:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>GET</code></pre>
+            </div>
+        </div>
+        <p><strong>Description:</strong></p>
+        <p>Retrieves system health information including CPU and RAM usage.</p>
+        <p><strong>Response:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre
+                    class="highlight"><code>{ "CPU_usage": float, "RAM_usage": float, "generatedAt": "datetime" }</code></pre>
+            </div>
+        </div>
+
         <h2>Errors</h2>
         <ul>
             <li><strong>400 Bad Request:</strong> If the provided IP address is invalid.</li>
@@ -147,7 +151,7 @@
 
         <h2>Notes</h2>
         <ul>
-            <li>This API uses GeoLite2 databases for IP geolocation. Ensure that these databases are properly configured
+            <li>This API uses MAXMIND GeoLite2 databases for IP geolocation. Ensure that these databases are properly configured
                 and
                 up-to-date for accurate results.</li>
             <li>Some endpoints may provide additional information such as CPU and RAM usage, version, and release date.
