@@ -4,29 +4,11 @@ from urllib.request import urlretrieve
 
 import zipfile
 
-import mysql.connector
-from mysql.connector import Error
 import csv
-
-from dotenv import load_dotenv
-
-load_dotenv()
 
 YOUR_LICENSE_KEY = os.getenv("YOUR_LICENSE_KEY")
 MaxMind_GeoIP_ZIP_NAME = os.getenv("MaxMind_GeoIP_ZIP_NAME")
 Unzipp_Folder = "0"
-
-# Connect DB server and database
-conn = mysql.connector.connect(
-    host=os.getenv("DB_HOST"),
-    port=os.getenv("DB_PORT"),
-    user=os.getenv("DB_USERNAME"),
-    password=os.getenv("DB_PASSWORD"),
-    database=os.getenv("DB_DATABASE"),
-    ssl_ca=os.getenv("DB_SSL_CA"),
-    ssl_verify_cert=True,
-    ssl_verify_identity=True,
-)
 
 
 def func_download_db(filename, LICENSE_KEY):
@@ -76,44 +58,3 @@ func_zip_delete(filename)
 func_find_extract_folder_name()
 
 print(Unzipp_Folder)
-
-
-cursor = conn.cursor()
-
-cursor.execute(
-    """create table IF NOT EXISTS ipv4
-(
-    id                             int NOT NULL AUTO_INCREMENT,
-    network                        varchar(255),
-    geoname_id                     varchar(255),
-    registered_country_geoname_id  varchar(255),
-    represented_country_geoname_id varchar(255),
-    is_anonymous_proxy             varchar(255),
-    is_satellite_provider          varchar(255),
-    postal_code                    varchar(255),
-    latitude                       varchar(255),
-    longitude                      varchar(255),
-    accuracy_radius                varchar(255),
-    PRIMARY KEY (id)
-)"""
-)
-
-ipv4_file = "db/" + Unzipp_Folder + "/GeoLite2-City-Blocks-IPv4.csv"
-# open the csv file
-with open(ipv4_file, mode="r") as csv_file:
-    # read csv using reader class
-    csv_reader = csv.reader(csv_file)
-    # skip header
-    header = next(csv_reader)
-    # Read csv row wise and insert into table
-    i = 1
-    for row in csv_reader:
-        sql = """INSERT INTO ipv4 (network, geoname_id, registered_country_geoname_id, represented_country_geoname_id,
-                  is_anonymous_proxy, is_satellite_provider, postal_code, latitude, longitude, accuracy_radius)
-VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
-        cursor.execute(sql, tuple(row))
-        print("Record inserted " + str(i))
-        i = i + 1
-        conn.commit()
-# conn.commit()
-cursor.close()
