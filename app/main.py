@@ -10,8 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
-from system_func import cpu_usage ,memory_usage 
+from app.cpu_memory_usage import cpu_usage, memory_usage
 
 # from dotenv import load_dotenv
 # load_dotenv()
@@ -124,7 +123,7 @@ def read_version(request: Request):
     y = memory_usage()
     print("RAM memory % used:", x)
     print("The CPU usage is : ", y)
-    return {"version": "0.0.1", "release_date": "03/03/2024"}
+    return {"CPU_usage": x, "RAM_usage": y, "generatedAt": datetime.datetime.now()}
 
 
 @app.get("/ip/{input_ip_address}")
