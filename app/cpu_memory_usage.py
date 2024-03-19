@@ -1,6 +1,7 @@
 import os
 import psutil
 
+
 def cpu_usage():
     """
     Get CPU usage percentage.
@@ -10,7 +11,7 @@ def cpu_usage():
     """
     try:
         load1, load5, load15 = psutil.getloadavg()
-        cpu_percent = round((load15 / psutil.cpu_count()) * 100,2)
+        cpu_percent = round((load15 / psutil.cpu_count()) * 100, 2)
     except Exception as e:
         print(f"Error retrieving CPU usage: {e}")
         cpu_percent = None
