@@ -31,75 +31,50 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Initialize GeoIP readers
+city_database_path = "./db/GeoLite2-City.mmdb"
+country_database_path = "./db/GeoLite2-Country.mmdb"
+asn_database_path = "./db/GeoLite2-ASN.mmdb"
 
-def check(ip):
-    # Use the ip_address function from the ipaddress module to check if the input is a valid IP address
+with geoip2.database.Reader(city_database_path) as reader_city, geoip2.database.Reader(
+    country_database_path
+) as reader_country, geoip2.database.Reader(asn_database_path) as reader_asn:
+
+    def find_geo(ip_address):
+        try:
+            response_city = reader_city.city(ip_address)
+            response_country = reader_country.country(ip_address)
+            response_asn = reader_asn.asn(ip_address)
+
+            geoipdata = {
+                "country": response_city.country.name,
+                "iso_code": response_city.country.iso_code,
+                "subdivisions": response_city.subdivisions.most_specific.name,
+                "city": response_city.city.name,
+                "latitude": response_city.location.latitude,
+                "longitude": response_city.location.longitude,
+                "postal_code": response_city.postal.code,
+                "time_zone": response_city.location.time_zone,
+                "continent_code": response_country.continent.code,
+                "continent_name": response_country.continent.names["en"],
+                "asn": response_asn.autonomous_system_number,
+                "asn_org": response_asn.autonomous_system_organization,
+            }
+            return geoipdata
+        except geoip2.errors.AddressNotFoundError:
+            return None
+
+
+# Helper function to check IP address validity
+def is_valid_ip(ip):
     try:
         ipaddress.ip_address(ip)
-        print("Valid IP address")
-        return 1
+        return True
     except ValueError:
-        # If the input is not a valid IP address, catch the exception and print an error message
-        print("Invalid IP address")
-        return 0
+        return False
 
 
-def find_geo(ip_address):
-
-    geoipdata = {}
-    # Path to the GeoIP2 City ,Country,ASN database file
-    city_database_path = "./db/GeoLite2-City.mmdb"
-    country_database_path = "./db/GeoLite2-Country.mmdb"
-    asn_database_path = "./db/GeoLite2-ASN.mmdb"
-
-    # Initialize reader object named reader_city ,reader_country ,reader_asn
-    reader_city = geoip2.database.Reader(city_database_path)
-    reader_country = geoip2.database.Reader(country_database_path)
-    reader_asn = geoip2.database.Reader(asn_database_path)
-
-    try:
-        # Perform the lookup
-        response = reader_city.city(ip_address)
-        geoipdata["country"] = response.country.name
-        geoipdata["iso_code"] = response.country.iso_code
-        geoipdata["subdivisions"] = response.subdivisions.most_specific.name
-        geoipdata["city"] = response.city.name
-        geoipdata["latitude"] = response.location.latitude
-        geoipdata["longitude"] = response.location.longitude
-        geoipdata["postal_code"] = response.postal.code
-        geoipdata["time_zone"] = response.location.time_zone
-
-    except geoip2.errors.AddressNotFoundError:
-        print("Address not found in the database")
-    finally:
-        # Close the reader
-        reader_city.close()
-    try:
-        # Perform the lookup
-        response = reader_country.country(ip_address)
-
-        geoipdata["continent_code"] = response.continent.code
-        geoipdata["continent_name"] = response.continent.names["en"]
-    except geoip2.errors.AddressNotFoundError:
-        print("Address not found in the database")
-    finally:
-        # Close the reader
-        reader_country.close()
-
-    try:
-        # Perform the lookup
-        response = reader_asn.asn(ip_address)
-
-        geoipdata["asn"] = response.autonomous_system_number
-        geoipdata["asn_org"] = response.autonomous_system_organization
-    except geoip2.errors.AddressNotFoundError:
-        print("Address not found in the database")
-    finally:
-        # Close the reader
-        reader_asn.close()
-    return geoipdata
-
-
+# Main endpoints
 @app.get("/", response_class=HTMLResponse)
 async def read_index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -107,34 +82,34 @@ async def read_index(request: Request):
 
 @app.get("/health")
 def read_system_health():
-    x = cpu_usage()
-    y = memory_usage()
-    return {"CPU_usage": x, "RAM_usage": y, "generatedAt": datetime.datetime.now()}
+    return {
+        "CPU_usage": cpu_usage(),
+        "RAM_usage": memory_usage(),
+        "generatedAt": datetime.datetime.now(),
+    }
 
 
 @app.get("/ip/{input_ip_address}")
-def read_item(
-    input_ip_address: str,
-):
-    x = check(input_ip_address)
-    if x == 1:
-        geoipData = find_geo(input_ip_address)
+def read_item(input_ip_address: str):
+    if is_valid_ip(input_ip_address):
+        geoip_data = find_geo(input_ip_address)
+        if geoip_data:
+            return {
+                "ipData": geoip_data,
+                "generatedAt": datetime.datetime.now(),
+                "version": "0.0.1",
+                "release_date": "03/03/2024",
+            }
+        else:
+            return {"error": "Address not found in the database"}
     else:
-        geoipData = "Invalid Ip address"
-
-    return {
-        "ipData": geoipData,
-        "generatedAt": datetime.datetime.now(),
-        "version": "0.0.1",
-        "release_date": "03/03/2024",
-    }
+        return {"error": "Invalid IP address"}
 
 
 @app.get("/ip/i")
 def read_client_ip(request: Request):
     ip_address = request.client.host  # Default to the client's host IP
-    # Extracting IP address and country from Cloudflare headers if present
-    cf_ip_address = request.headers.get("CF-Connecting-IP")
+    cf_ip_address = request.headers.get("CF-Connecting-IP")  # Cloudflare IP
     if cf_ip_address:
         ip_address = cf_ip_address
     return {"your_ip": ip_address}
@@ -143,19 +118,19 @@ def read_client_ip(request: Request):
 @app.get("/ip/full")
 def read_client_ip_full(request: Request):
     ip_address = request.client.host  # Default to the client's host IP
-    # Extracting IP address and country from Cloudflare headers if present
-    cf_ip_address = request.headers.get("CF-Connecting-IP")
+    cf_ip_address = request.headers.get("CF-Connecting-IP")  # Cloudflare IP
     if cf_ip_address:
         ip_address = cf_ip_address
-
-    x = check(ip_address)
-    if x == 1:
-        geoipData = find_geo(ip_address)
+    if is_valid_ip(ip_address):
+        geoip_data = find_geo(ip_address)
+        if geoip_data:
+            return {
+                "ipData": geoip_data,
+                "generatedAt": datetime.datetime.now(),
+                "version": "0.0.1",
+                "release_date": "03/03/2024",
+            }
+        else:
+            return {"error": "Address not found in the database"}
     else:
-        geoipData = "Invalid Ip address"
-    return {
-        "ipData": geoipData,
-        "generatedAt": datetime.datetime.now(),
-        "version": "0.0.1",
-        "release_date": "03/03/2024",
-    }
+        return {"error": "Invalid IP address"}
