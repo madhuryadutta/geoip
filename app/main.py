@@ -12,15 +12,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from app.cpu_memory_usage import cpu_usage, memory_usage
 
-# from dotenv import load_dotenv
-# load_dotenv()
-
 app = FastAPI()
 
 # Mount static files directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# CDN = os.environ["APP_URL_ENV"]
 
 # Configure Jinja2 templates
 templates = Jinja2Templates(directory="templates")
@@ -110,30 +105,22 @@ async def read_index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-@app.get("/v")
-def read_version(request: Request):
-    client_host = request.client.host
-    return {"version": "0.0.1", "release_date": "03/03/2024"}
-
-
 @app.get("/health")
-def read_version(request: Request):
-    # Memory usage
+def read_system_health():
     x = cpu_usage()
     y = memory_usage()
-    print("RAM memory % used:", x)
-    print("The CPU usage is : ", y)
     return {"CPU_usage": x, "RAM_usage": y, "generatedAt": datetime.datetime.now()}
 
 
 @app.get("/ip/{input_ip_address}")
-def read_item(input_ip_address: str, request: Request):
+def read_item(
+    input_ip_address: str,
+):
     x = check(input_ip_address)
     if x == 1:
         geoipData = find_geo(input_ip_address)
     else:
         geoipData = "Invalid Ip address"
-    # geoipdata = "Address not found in the database"
 
     return {
         "ipData": geoipData,
@@ -143,14 +130,32 @@ def read_item(input_ip_address: str, request: Request):
     }
 
 
-@app.get("/i/{input_ip_address}")
-def read_item(input_ip_address: str):
-    x = check(input_ip_address)
-    print(x)
-    return {"version": "0.0.1", "release_date": "03/03/2024"}
+@app.get("/ip/i")
+def read_client_ip(request: Request):
+    ip_address = request.client.host  # Default to the client's host IP
+    # Extracting IP address and country from Cloudflare headers if present
+    cf_ip_address = request.headers.get("CF-Connecting-IP")
+    if cf_ip_address:
+        ip_address = cf_ip_address
+    return {"your_ip": ip_address}
 
 
-@app.get("/whoami")
-def read_client(request: Request):
-    client_host = request.client.host
-    return {"client_ip": client_host}
+@app.get("/ip/full")
+def read_client_ip_full(request: Request):
+    ip_address = request.client.host  # Default to the client's host IP
+    # Extracting IP address and country from Cloudflare headers if present
+    cf_ip_address = request.headers.get("CF-Connecting-IP")
+    if cf_ip_address:
+        ip_address = cf_ip_address
+
+    x = check(ip_address)
+    if x == 1:
+        geoipData = find_geo(ip_address)
+    else:
+        geoipData = "Invalid Ip address"
+    return {
+        "ipData": geoipData,
+        "generatedAt": datetime.datetime.now(),
+        "version": "0.0.1",
+        "release_date": "03/03/2024",
+    }
