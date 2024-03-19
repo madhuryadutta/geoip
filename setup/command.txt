@@ -1,0 +1,12 @@
+
+wget --content-disposition --user=YOUR_ACCOUNT_ID --password=YOUR_LICENSE_KEY 'https://download.maxmind.com/geoip/databases/GeoIP2-City-CSV/download?suffix=zip'
+
+
+
+
+https://download.maxmind.com/geoip/databases/GeoLite2-ASN/download?suffix=tar.gz
+https://download.maxmind.com/geoip/databases/GeoLite2-City/download?suffix=tar.gz
+https://download.maxmind.com/geoip/databases/GeoLite2-Country/download?suffix=tar.gz
+
+
+

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+    <title>Geo IP API</title>
+    <meta name="generator" content="Jekyll v3.9.5" />
+    <meta property="og:title" content="temp" />
+    <meta property="og:locale" content="en_US" />
+    <link rel="canonical" href="https://geo.example.com/" />
+    <meta property="og:url" content="https://geo.example.com/" />
+    <meta property="og:site_name" content="temp" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta property="twitter:title" content="temp" />
+    <script type="application/ld+json">
+        {"@context":"https://schema.org","@type":"WebSite","headline":"Geo IP API","name":"Geo IP API","url":"https://geo.example.com/"}
+    </script>
+    <!-- End Jekyll SEO tag -->
+
+    <!-- link rel="shortcut icon" type="image/x-icon" href="/temp/favicon.ico" -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container-lg px-3 my-5 markdown-body">
+
+        <h1>IP Geolocation Service API Documentation</h1>
+
+        <h2>Overview</h2>
+        <p>This API provides services related to IP geolocation and IP address retrieval.</p>
+
+        <h3>Base URL</h3>
+        <code>example.com</code>
+
+        <br>
+        <br>
+        <h3>Endpoints</h3>
+
+        <h4>1. Lookup Geographical Information by IP Address</h4>
+        <p><strong>URL:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>/ip/{input_ip_address}</code></pre>
+            </div>
+        </div>
+        <p><strong>Method:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>GET</code></pre>
+            </div>
+        </div>
+        <p><strong>Description:</strong></p>
+        <p>Retrieves geographical information associated with the provided IP address.</p>
+        <p><strong>Parameters:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>input_ip_address (string): The IP address to lookup.</code></pre>
+            </div>
+        </div>
+        <p><strong>Response:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre
+                    class="highlight"><code>{ "ipData": { ... }, "generatedAt": "datetime", "version": "string", "release_date": "string" }</code></pre>
+            </div>
+        </div>
+
+        <h4>2. Retrieve Client IP Address</h4>
+        <p><strong>URL:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>/ip/i</code></pre>
+            </div>
+        </div>
+        <p><strong>Method:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>GET</code></pre>
+            </div>
+        </div>
+        <p><strong>Description:</strong></p>
+        <p>Retrieves the client's IP address.</p>
+        <p><strong>Response:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>{ "your_ip": "string" }</code></pre>
+            </div>
+        </div>
+
+        <h4>3. Retrieve Client IP Address with Geographical Information</h4>
+        <p><strong>URL:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>/ip/full</code></pre>
+            </div>
+        </div>
+        <p><strong>Method:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>GET</code></pre>
+            </div>
+        </div>
+        <p><strong>Description:</strong></p>
+        <p>Retrieves the client's IP address along with associated geographical information.</p>
+        <p><strong>Response:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre
+                    class="highlight"><code>{ "ipData": { ... }, "generatedAt": "datetime", "version": "string", "release_date": "string" }</code></pre>
+            </div>
+        </div>
+
+        <h4>4. Retrieve System Health Information</h4>
+        <p><strong>URL:</strong></p>
+
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>/health</code></pre>
+            </div>
+        </div>
+        <p><strong>Method:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>GET</code></pre>
+            </div>
+        </div>
+        <p><strong>Description:</strong></p>
+        <p>Retrieves system health information including CPU and RAM usage.</p>
+        <p><strong>Response:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre
+                    class="highlight"><code>{ "CPU_usage": float, "RAM_usage": float, "generatedAt": "datetime" }</code></pre>
+            </div>
+        </div>
+
+        <h2>Errors</h2>
+        <ul>
+            <li><strong>400 Bad Request:</strong> If the provided IP address is invalid.</li>
+            <li><strong>404 Not Found:</strong> If the IP address is not found in the database.</li>
+        </ul>
+
+        <h2>Notes</h2>
+        <ul>
+            <li>This API uses MAXMIND GeoLite2 databases for IP geolocation. Ensure that these databases are properly configured
+                and
+                up-to-date for accurate results.</li>
+            <li>Some endpoints may provide additional information such as CPU and RAM usage, version, and release date.
+            </li>
+        </ul>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js"
+        integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+</body>
+
+</html>
