@@ -32,55 +32,127 @@
 <body>
     <div class="container-lg px-3 my-5 markdown-body">
 
-        <h1>Documentation</h1>
-        <hr>
-        <div class="language-plaintext highlighter-rouge">
-            <div class="highlight">
-                <pre class="highlight"><code>
- Related to selfhosted                   
-pip install -r requirements.txt
-uvicorn app.main:app --proxy-headers --reload
-</code></pre>
-            </div>
-        </div>
-        <hr>
+        <h1>IP Geolocation Service API Documentation</h1>
 
+        <h2>Overview</h2>
+        <p>This API provides services related to IP geolocation, system health monitoring, and IP address retrieval.</p>
+
+        <h2>Base URL</h2>
+        <p>example.com</p>
+        <h2>Endpoints</h2>
+
+        <h3>1. Retrieve System Health Information</h3>
+        <p><strong>URL:</strong></p>
 
         <div class="language-plaintext highlighter-rouge">
             <div class="highlight">
-                <pre class="highlight"><code>
-/api/ip/heath
-will retun retun cpu and memoy status of our host system 
-</code></pre>
+                <pre class="highlight"><code>/health</code></pre>
             </div>
         </div>
-        <hr>
-
-
-
-
-
-
-
-
-
-
-
-
-
+        <p><strong>Method:</strong></p>
         <div class="language-plaintext highlighter-rouge">
             <div class="highlight">
-                <pre class="highlight"><code>
-/api/ip
-will retun ip information for the ip you are cureently requesting from
-</code></pre>
+                <pre class="highlight"><code>GET</code></pre>
             </div>
         </div>
-        <hr>
+        <p><strong>Description:</strong></p>
+        <p>Retrieves system health information including CPU and RAM usage.</p>
+        <p><strong>Response:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre
+                    class="highlight"><code>{ "CPU_usage": float, "RAM_usage": float, "generatedAt": "datetime" }</code></pre>
+            </div>
+        </div>
 
+        <h3>2. Lookup Geographical Information by IP Address</h3>
+        <p><strong>URL:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>/ip/{input_ip_address}</code></pre>
+            </div>
+        </div>
+        <p><strong>Method:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>GET</code></pre>
+            </div>
+        </div>
+        <p><strong>Description:</strong></p>
+        <p>Retrieves geographical information associated with the provided IP address.</p>
+        <p><strong>Parameters:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>input_ip_address (string): The IP address to lookup.</code></pre>
+            </div>
+        </div>
+        <p><strong>Response:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre
+                    class="highlight"><code>{ "ipData": { ... }, "generatedAt": "datetime", "version": "string", "release_date": "string" }</code></pre>
+            </div>
+        </div>
 
+        <h3>3. Retrieve Client IP Address</h3>
+        <p><strong>URL:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>/ip/i</code></pre>
+            </div>
+        </div>
+        <p><strong>Method:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>GET</code></pre>
+            </div>
+        </div>
+        <p><strong>Description:</strong></p>
+        <p>Retrieves the client's IP address.</p>
+        <p><strong>Response:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>{ "your_ip": "string" }</code></pre>
+            </div>
+        </div>
 
+        <h3>4. Retrieve Client IP Address with Geographical Information</h3>
+        <p><strong>URL:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>/ip/full</code></pre>
+            </div>
+        </div>
+        <p><strong>Method:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre class="highlight"><code>GET</code></pre>
+            </div>
+        </div>
+        <p><strong>Description:</strong></p>
+        <p>Retrieves the client's IP address along with associated geographical information.</p>
+        <p><strong>Response:</strong></p>
+        <div class="language-plaintext highlighter-rouge">
+            <div class="highlight">
+                <pre
+                    class="highlight"><code>{ "ipData": { ... }, "generatedAt": "datetime", "version": "string", "release_date": "string" }</code></pre>
+            </div>
+        </div>
 
+        <h2>Errors</h2>
+        <ul>
+            <li><strong>400 Bad Request:</strong> If the provided IP address is invalid.</li>
+            <li><strong>404 Not Found:</strong> If the IP address is not found in the database.</li>
+        </ul>
+
+        <h2>Notes</h2>
+        <ul>
+            <li>This API uses GeoLite2 databases for IP geolocation. Ensure that these databases are properly configured
+                and
+                up-to-date for accurate results.</li>
+            <li>Some endpoints may provide additional information such as CPU and RAM usage, version, and release date.
+            </li>
+        </ul>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js"
         integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
