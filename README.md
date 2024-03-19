@@ -3,17 +3,21 @@
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-## About 
+## About
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+This project is a FastAPI application designed to provide information about IP addresses, including their geographical locations. It utilizes MaxMind's GeoIP2 database for accurate location data retrieval. The application offers several endpoints which you can read about in the [documentation section](#documentation).
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+The project aims to offer a simple yet effective way to gather information about IP addresses programmatically. Feel free to explore!
+
+
+
+### Build Using
+
+- **[FastAPI](https://fastapi.tiangolo.com/)**
+- **[MaxMind’s GeoIP2 databases](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data)**
+
+
+
 
 ### How to Use:
 
@@ -28,20 +32,8 @@ docker build -t geo-ip .
 docker run -d --name geo-ip -p 80:80 geo-ip
 ```
 
-
-### Build Using
-
-- **[FastAPI](https://fastapi.tiangolo.com/)**
-- **[MaxMind’s GeoIP2 databases](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data)**
-
-
 API Documentation
 ========================================
-
-Overview
---------
-
-This API provides services related to IP geolocation and IP address retrieval.
 
 ### Base URL
 
