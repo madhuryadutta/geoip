@@ -15,7 +15,7 @@ from app.cpu_memory_usage import cpu_usage, memory_usage
 app = FastAPI()
 
 # Mount static files directory
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Configure Jinja2 templates
 templates = Jinja2Templates(directory="templates")
@@ -36,33 +36,61 @@ city_database_path = "./db/GeoLite2-City.mmdb"
 country_database_path = "./db/GeoLite2-Country.mmdb"
 asn_database_path = "./db/GeoLite2-ASN.mmdb"
 
-with geoip2.database.Reader(city_database_path) as reader_city, geoip2.database.Reader(
-    country_database_path
-) as reader_country, geoip2.database.Reader(asn_database_path) as reader_asn:
 
-    def find_geo(ip_address):
-        try:
-            response_city = reader_city.city(ip_address)
-            response_country = reader_country.country(ip_address)
-            response_asn = reader_asn.asn(ip_address)
+def find_geo(ip_address):
 
-            geoipdata = {
-                "country": response_city.country.name,
-                "iso_code": response_city.country.iso_code,
-                "subdivisions": response_city.subdivisions.most_specific.name,
-                "city": response_city.city.name,
-                "latitude": response_city.location.latitude,
-                "longitude": response_city.location.longitude,
-                "postal_code": response_city.postal.code,
-                "time_zone": response_city.location.time_zone,
-                "continent_code": response_country.continent.code,
-                "continent_name": response_country.continent.names["en"],
-                "asn": response_asn.autonomous_system_number,
-                "asn_org": response_asn.autonomous_system_organization,
-            }
-            return geoipdata
-        except geoip2.errors.AddressNotFoundError:
-            return None
+    geoipdata = {}
+    # Path to the GeoIP2 City ,Country,ASN database file
+    city_database_path = "./db/GeoLite2-City.mmdb"
+    country_database_path = "./db/GeoLite2-Country.mmdb"
+    asn_database_path = "./db/GeoLite2-ASN.mmdb"
+
+    # Initialize reader object named reader_city ,reader_country ,reader_asn
+    reader_city = geoip2.database.Reader(city_database_path)
+    reader_country = geoip2.database.Reader(country_database_path)
+    reader_asn = geoip2.database.Reader(asn_database_path)
+
+    try:
+        # Perform the lookup
+        response = reader_city.city(ip_address)
+        geoipdata["country"] = response.country.name
+        geoipdata["iso_code"] = response.country.iso_code
+        geoipdata["subdivisions"] = response.subdivisions.most_specific.name
+        geoipdata["city"] = response.city.name
+        geoipdata["latitude"] = response.location.latitude
+        geoipdata["longitude"] = response.location.longitude
+        geoipdata["postal_code"] = response.postal.code
+        geoipdata["time_zone"] = response.location.time_zone
+
+    except geoip2.errors.AddressNotFoundError:
+        print("Address not found in the database")
+    finally:
+        # Close the reader
+        reader_city.close()
+    try:
+        # Perform the lookup
+        response = reader_country.country(ip_address)
+
+        geoipdata["continent_code"] = response.continent.code
+        geoipdata["continent_name"] = response.continent.names["en"]
+    except geoip2.errors.AddressNotFoundError:
+        print("Address not found in the database")
+    finally:
+        # Close the reader
+        reader_country.close()
+
+    try:
+        # Perform the lookup
+        response = reader_asn.asn(ip_address)
+
+        geoipdata["asn"] = response.autonomous_system_number
+        geoipdata["asn_org"] = response.autonomous_system_organization
+    except geoip2.errors.AddressNotFoundError:
+        print("Address not found in the database")
+    finally:
+        # Close the reader
+        reader_asn.close()
+    return geoipdata
 
 
 # Helper function to check IP address validity
