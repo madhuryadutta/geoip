@@ -10,8 +10,8 @@ COPY ./app /code/app
 COPY ./db /code/db
 COPY ./setup /code/setup
 COPY ./templates /code/templates
-COPY ./static /code/static
-COPY ./local /code/local
+# COPY ./static /code/static
+# COPY ./local /code/local
 
 # CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
 
