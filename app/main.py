@@ -9,11 +9,19 @@ from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import Depends, FastAPI
+
+# from .dependencies import get_query_token, get_token_header
+from .routers import health
+
 from pydantic import BaseModel
 from app.cpu_memory_usage import cpu_usage, memory_usage
 
 app = FastAPI()
+# app = FastAPI(dependencies=[Depends(get_query_token)])
 
+
+app.include_router(health.router)
 # Mount static files directory
 # app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -123,15 +131,6 @@ def is_valid_ip(ip):
 @app.get("/", response_class=HTMLResponse)
 async def read_index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
-
-
-@app.get("/health")
-def read_system_health():
-    return {
-        "CPU_usage":              cpu_usage(),
-        "RAM_usage": memory_usage(),
-        "generatedAt": datetime.datetime.now(),
-    }
 
 
 @app.get("/ip/i")
