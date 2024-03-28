@@ -128,7 +128,7 @@ async def read_index(request: Request):
 @app.get("/health")
 def read_system_health():
     return {
-        "CPU_usage": cpu_usage(),
+        "CPU_usage":              cpu_usage(),
         "RAM_usage": memory_usage(),
         "generatedAt": datetime.datetime.now(),
     }
