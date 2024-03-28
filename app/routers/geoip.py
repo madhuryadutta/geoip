@@ -1,43 +1,14 @@
 import os
 import datetime
+import ipaddress
+import geoip2.database
 
+# from typing import Union
+# from fastapi import FastAPI, Request
+from fastapi import APIRouter, Request
 
-from typing import Union
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi import Depends, FastAPI
+router = APIRouter()
 
-# from .dependencies import get_query_token, get_token_header
-from .routers import health, geoip
-
-from pydantic import BaseModel
-
-app = FastAPI()
-# app = FastAPI(dependencies=[Depends(get_query_token)])
-
-
-app.include_router(health.router)
-app.include_router(geoip.router)
-
-# Configure Jinja2 templates
-templates = Jinja2Templates(directory="templates")
-
-# Mount static files directory
-# app.mount("/static", StaticFiles(directory="static"), name="static")
-
-
-origins = ["*"]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # Initialize GeoIP readers
 city_database_path = "./db/GeoLite2-City.mmdb"
@@ -127,14 +98,8 @@ def is_valid_ip(ip):
         return False
 
 
-# Main endpoints
-@app.get("/", response_class=HTMLResponse)
-async def read_index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
-
-@app.get("/ip/i")
-def read_client_ip(request: Request):
+@router.get("/ip/i")
+async def read_client_ip(request: Request):
     ip_address = request.client.host  # Default to the client's host IP
     cf_ip_address = request.headers.get("CF-Connecting-IP")  # Cloudflare IP
     if cf_ip_address:
@@ -142,8 +107,8 @@ def read_client_ip(request: Request):
     return {"your_ip": ip_address}
 
 
-@app.get("/ip/full")
-def read_client_ip_full(request: Request):
+@router.get("/ip/full")
+async def read_client_ip_full(request: Request):
     ip_address = request.client.host  # Default to the client's host IP
     cf_ip_address = request.headers.get("CF-Connecting-IP")  # Cloudflare IP
     if cf_ip_address:
@@ -161,8 +126,8 @@ def read_client_ip_full(request: Request):
         return {"error": "Invalid IP address"}
 
 
-@app.get("/ip/{input_ip_address}")
-def read_item(input_ip_address: str):
+@router.get("/ip/{input_ip_address}")
+async def read_item(input_ip_address: str):
     if is_valid_ip(input_ip_address):
         geoip_data = find_geo(input_ip_address)
         if geoip_data:
