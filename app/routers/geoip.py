@@ -17,7 +17,6 @@ asn_database_path = "./db/GeoLite2-ASN.mmdb"
 
 
 def find_geo(ip_address):
-
     geoipdata = {}
     # Path to the GeoIP2 City ,Country,ASN database file
     city_database_path = "./db/GeoLite2-City.mmdb"
@@ -32,6 +31,8 @@ def find_geo(ip_address):
     try:
         # Perform the lookup
         response = reader_city.city(ip_address)
+        geoipdata["ip_version"] = get_ip_version(ip_address)
+        geoipdata["ip"] = ip_address
         geoipdata["country"] = response.country.name or "Unknown"
         geoipdata["iso_code"] = response.country.iso_code or "Unknown"
         geoipdata["subdivisions"] = (
@@ -40,6 +41,7 @@ def find_geo(ip_address):
         geoipdata["city"] = response.city.name or "Unknown"
         geoipdata["latitude"] = response.location.latitude or "Unknown"
         geoipdata["longitude"] = response.location.longitude or "Unknown"
+
         geoipdata["postal_code"] = response.postal.code or "Unknown"
         geoipdata["time_zone"] = response.location.time_zone or "Unknown"
 
@@ -85,6 +87,15 @@ def find_geo(ip_address):
     finally:
         # Close the reader
         reader_asn.close()
+
+    geoipdata["map"] = (
+        '<iframe src="https://maps.google.com/maps?q='
+        + str(geoipdata["latitude"])
+        + ","
+        + str(geoipdata["longitude"])
+        + '&hl=es;z=14&output=embed"></iframe>'
+    )
+    geoipdata["generatedAt"] = datetime.datetime.now()
     return geoipdata
 
 
@@ -98,7 +109,18 @@ def is_valid_ip(ip):
         return False
 
 
-@router.get("/ip/i")
+def get_ip_version(ip_address):
+    try:
+        ip = ipaddress.ip_address(ip_address)
+        if isinstance(ip, ipaddress.IPv4Address):
+            return "IPv4"
+        elif isinstance(ip, ipaddress.IPv6Address):
+            return "IPv6"
+    except ValueError:
+        return "Invalid IP Address"
+
+
+@router.get("/ip/")
 async def read_client_ip(request: Request):
     ip_address = request.client.host  # Default to the client's host IP
     cf_ip_address = request.headers.get("CF-Connecting-IP")  # Cloudflare IP
@@ -116,10 +138,7 @@ async def read_client_ip_full(request: Request):
     if is_valid_ip(ip_address):
         geoip_data = find_geo(ip_address)
         if geoip_data:
-            return {
-                "ipData": geoip_data,
-                "generatedAt": datetime.datetime.now(),
-            }
+            return geoip_data
         else:
             return {"error": "Address not found in the database"}
     else:
@@ -131,10 +150,7 @@ async def read_item(input_ip_address: str):
     if is_valid_ip(input_ip_address):
         geoip_data = find_geo(input_ip_address)
         if geoip_data:
-            return {
-                "ipData": geoip_data,
-                "generatedAt": datetime.datetime.now(),
-            }
+            return geoip_data
         else:
             return {"error": "Address not found in the database"}
     else:
