@@ -1,5 +1,9 @@
 import os
 import psutil
+import datetime
+from fastapi import APIRouter
+
+router = APIRouter()
 
 
 def cpu_usage():
@@ -34,3 +38,28 @@ def memory_usage():
         print(f"Error retrieving memory usage: {e}")
         memory_percent = None
     return memory_percent
+
+
+@router.get("/health", tags=["health"])
+async def read_system_health():
+    return {
+        "CPU_usage": cpu_usage(),
+        "RAM_usage": memory_usage(),
+        "generatedAt": datetime.datetime.now(),
+    }
+
+
+@router.get("/health/cpu", tags=["health"])
+async def read_system_health():
+    return {
+        "CPU_usage": cpu_usage(),
+        "generatedAt": datetime.datetime.now(),
+    }
+
+
+@router.get("/health/ram", tags=["health"])
+async def read_system_health():
+    return {
+        "RAM_usage": memory_usage(),
+        "generatedAt": datetime.datetime.now(),
+    }

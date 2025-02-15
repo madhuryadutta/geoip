@@ -1,0 +1,50 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Build
+
+on: [push]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install black
+
+      - name: Running Black Formatter
+        run: black .
+
+      #   Method 2
+      #   - uses: psf/black@stable
+      #   Method 2
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message:
+            Code Style Fix
+            # Commit all changed files back to the production branch of the repository
+            # Optional. Local and remote branch name where commit is going to be pushed
+            #  to. Defaults to the current branch.
+            #  You might need to set `create_branch: true` if the branch does not exist.
+          # branch: production
+          # Optional. Options used by `git-push`.
+          # See https://git-scm.com/docs/git-push#_options
+          #  push_options: "--force"
+
+          # Optional. Disable dirty check and always try to create a commit and push
+          # skip_dirty_check: true
+
+          # Optional. Create given branch name in local and remote repository.
+          # create_branch: true
