@@ -40,7 +40,7 @@ def memory_usage():
     return memory_percent
 
 
-@router.get("/health/", tags=["health"])
+@router.get("/health", tags=["health"])
 async def read_system_health():
     return {
         "CPU_usage": cpu_usage(),

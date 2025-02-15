@@ -88,13 +88,14 @@ def find_geo(ip_address):
         # Close the reader
         reader_asn.close()
 
-    geoipdata["map"] = (
-        '<iframe src="https://maps.google.com/maps?q='
-        + str(geoipdata["latitude"])
-        + ","
-        + str(geoipdata["longitude"])
-        + '&hl=es;z=14&output=embed"></iframe>'
-    )
+    if "latitude" in geoipdata and "longitude" in geoipdata:
+        geoipdata["map"] = (
+            '<iframe src="https://maps.google.com/maps?q='
+            + str(geoipdata["latitude"])
+            + ","
+            + str(geoipdata["longitude"])
+            + '&hl=es;z=14&output=embed"></iframe>'
+        )
     geoipdata["generatedAt"] = datetime.datetime.now()
     return geoipdata
 
@@ -120,7 +121,7 @@ def get_ip_version(ip_address):
         return "Invalid IP Address"
 
 
-@router.get("/ip/")
+@router.get("/ip")
 async def read_client_ip(request: Request):
     ip_address = request.client.host  # Default to the client's host IP
     cf_ip_address = request.headers.get("CF-Connecting-IP")  # Cloudflare IP
